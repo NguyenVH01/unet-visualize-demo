@@ -6,6 +6,30 @@ from unet_model import UNet
 from PIL import Image
 import torchvision.transforms as transforms
 
+# Set page config and meta tags
+st.set_page_config(
+    page_title="UNet Architecture Visualization",
+    page_icon="🧊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# Add HTML meta tags
+st.markdown("""
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="UNet Architecture Visualization Tool - Visualize feature maps and network architecture">
+        <meta name="keywords" content="UNet, Deep Learning, Image Segmentation, Neural Network, Feature Maps">
+        <meta name="author" content="Hoang-Nguyen Vu">
+        <meta property="og:title" content="UNet Architecture Visualization">
+        <meta property="og:description" content="Interactive tool for visualizing UNet architecture and feature maps">
+        <meta property="og:image" content="https://example.com/unet-preview.jpg">
+        <meta property="og:type" content="website">
+        <title>UNet Architecture Visualization</title>
+    </head>
+""", unsafe_allow_html=True)
+
 def plot_feature_maps(feature_map, title):
     if isinstance(feature_map, torch.Tensor):
         feature_map = feature_map.detach().numpy()
