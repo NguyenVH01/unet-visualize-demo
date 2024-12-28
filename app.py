@@ -6,28 +6,6 @@ from unet_model import UNet
 from PIL import Image
 import torchvision.transforms as transforms
 
-# Custom CSS to ensure footer stays at bottom
-st.markdown(
-    """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: white;
-        color: black;
-        text-align: center;
-        padding: 10px;
-        border-top: 1px solid #ddd;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 def plot_feature_maps(feature_map, title):
     if isinstance(feature_map, torch.Tensor):
         feature_map = feature_map.detach().numpy()
@@ -81,7 +59,7 @@ def main():
 
     # Display uploaded image
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image', use_column_width=True)
+    st.image(image, caption='Uploaded Image', use_container_width=True)
 
     # Create model
     model = UNet(in_channels=in_channels, out_channels=out_channels)
