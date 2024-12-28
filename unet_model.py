@@ -1,3 +1,8 @@
+"""
+Built by Hoang-Nguyen Vu
+Basic implementation of UNet architecture for image segmentation
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

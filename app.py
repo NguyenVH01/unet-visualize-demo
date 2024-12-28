@@ -6,6 +6,28 @@ from unet_model import UNet
 from PIL import Image
 import torchvision.transforms as transforms
 
+# Custom CSS to ensure footer stays at bottom
+st.markdown(
+    """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: white;
+        color: black;
+        text-align: center;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 def plot_feature_maps(feature_map, title):
     if isinstance(feature_map, torch.Tensor):
         feature_map = feature_map.detach().numpy()
@@ -38,8 +60,13 @@ def preprocess_image(image):
     return transform(image).unsqueeze(0)  # Add batch dimension
 
 def main():
+    # Author information at the top
+    
+
     st.title("UNet Architecture Visualization")
     st.write("This app visualizes the basic UNet architecture and its feature maps")
+    st.markdown("<h6 style='text-align: left; color: #666666;'>Built by Hoang-Nguyen Vu</h6>", unsafe_allow_html=True)
+    st.markdown("---")
 
     # Model parameters
     in_channels = st.sidebar.slider("Input Channels", 1, 3, 3)
@@ -124,6 +151,17 @@ def main():
     st.subheader("Output")
     fig = plot_feature_maps(output, "Output")
     st.pyplot(fig)
+
+    # Add some space before footer
+    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    
+    # Add footer with author information
+    footer = """
+    <div class="footer">
+        <p style="font-size: 16px; font-weight: 500;">Built by Hoang-Nguyen Vu</p>
+    </div>
+    """
+    st.markdown(footer, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main() 
