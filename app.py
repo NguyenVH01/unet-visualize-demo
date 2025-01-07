@@ -8,13 +8,20 @@ from PIL import Image
 import torchvision.transforms as transforms
 import seaborn as sns
 
-# Set page config and meta tags
+# Enable multi-threading
 st.set_page_config(
     page_title="UNet Architecture Visualization",
     page_icon="🧊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Enable multi-threading for better performance
+if not hasattr(st, '_is_configured_for_threading'):
+    st._is_configured_for_threading = True
+    st.experimental_singleton._get_or_create_singleton = lambda *args, **kwargs: None
+    st.cache_data.clear()
+    st.cache_resource.clear()
 
 # Custom CSS styling
 st.markdown("""
