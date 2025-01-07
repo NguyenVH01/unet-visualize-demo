@@ -20,9 +20,22 @@ st.set_page_config(
 if 'model' not in st.session_state:
     st.session_state['model'] = None
 
+# Model caching using newer decorators
 @st.cache_resource(show_spinner=False)
 def get_model(in_channels, out_channels):
     return UNet(in_channels=in_channels, out_channels=out_channels)
+
+@st.cache_data(show_spinner=False)
+def preprocess_image(image):
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+    
+    return transform(image).unsqueeze(0)
 
 # Custom CSS styling
 st.markdown("""
@@ -126,17 +139,6 @@ def plot_unet_block(feature_maps, block_name, cmap='RdGy_r'):
     
     plt.suptitle(f'{block_name} Feature Maps', fontsize=16, fontweight='bold', y=1.02)
     return fig
-
-def preprocess_image(image):
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
-    
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-    
-    return transform(image).unsqueeze(0)
 
 def plot_network_architecture(features, input_shape, output_shape):
     """Plot UNet architecture with feature maps in each block"""
