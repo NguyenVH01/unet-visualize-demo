@@ -53,7 +53,7 @@ def plot_feature_maps(feature_map, title, cmap='RdGy_r'):
     if isinstance(feature_map, torch.Tensor):
         feature_map = feature_map.detach().numpy()
     
-    n_features = min(4, feature_map.shape[1])
+    n_features = min(feature_map.shape[1], 4)  # Show up to 4 channels
     fig, axes = plt.subplots(1, n_features, figsize=(15, 4))
     fig.patch.set_facecolor('#f0f2f6')
     
@@ -68,7 +68,13 @@ def plot_feature_maps(feature_map, title, cmap='RdGy_r'):
         
         im = axes[i].imshow(normalized_map, cmap=cmap)
         axes[i].axis('off')
-        axes[i].set_title(f'Channel {i+1}', pad=10, fontsize=10)
+        
+        # Special labels for output channels
+        if title == "Final Output" and n_features == 2:
+            class_names = ['Background', 'Foreground']
+            axes[i].set_title(f'{class_names[i]}\nChannel {i+1}', pad=10, fontsize=10)
+        else:
+            axes[i].set_title(f'Channel {i+1}', pad=10, fontsize=10)
         
         # Add colorbar
         plt.colorbar(im, ax=axes[i], fraction=0.046, pad=0.04)
@@ -239,7 +245,7 @@ def main():
     """, unsafe_allow_html=True)
     
     in_channels = st.sidebar.slider("Input Channels", 1, 3, 3)
-    out_channels = st.sidebar.slider("Output Channels", 1, 3, 1)
+    out_channels = 2  # Fixed for binary classification
 
     # Image upload with styled container
     st.markdown("""
