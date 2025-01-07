@@ -241,10 +241,14 @@ def main():
     st.sidebar.markdown("""
         <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px;'>
             <h4 style='margin: 0; color: #2c3e50;'>Model Parameters</h4>
+            <p style='margin: 10px 0 0 0; color: #34495e;'>
+                Model configured for RGB images (3 input channels) with binary segmentation (2 output channels).
+            </p>
         </div>
     """, unsafe_allow_html=True)
     
-    in_channels = st.sidebar.slider("Input Channels", 1, 3, 3)
+    # Fixed channels configuration
+    in_channels = 3  # Fixed for RGB images
     out_channels = 2  # Fixed for binary classification
 
     # Image upload with styled container
