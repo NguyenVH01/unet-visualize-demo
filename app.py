@@ -22,11 +22,16 @@ if 'model' not in st.session_state:
 
 # Model caching using newer decorators
 @st.cache_resource(show_spinner=False)
-def get_model(in_channels, out_channels):
+def get_model():
+    # Fixed configuration for the model
+    in_channels = 3  # RGB images
+    out_channels = 2  # Binary segmentation
     return UNet(in_channels=in_channels, out_channels=out_channels)
 
 @st.cache_data(show_spinner=False)
-def preprocess_image(image):
+def preprocess_image(image_bytes):
+    # Convert image bytes to PIL Image
+    image = Image.open(image_bytes)
     if image.mode != 'RGB':
         image = image.convert('RGB')
     
@@ -242,16 +247,12 @@ def main():
     # Sidebar styling
     st.sidebar.markdown("""
         <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px;'>
-            <h4 style='margin: 0; color: #2c3e50;'>Model Parameters</h4>
+            <h4 style='margin: 0; color: #2c3e50;'>Model Configuration</h4>
             <p style='margin: 10px 0 0 0; color: #34495e;'>
                 Model configured for RGB images (3 input channels) with binary segmentation (2 output channels).
             </p>
         </div>
     """, unsafe_allow_html=True)
-    
-    # Fixed channels configuration
-    in_channels = 3  # Fixed for RGB images
-    out_channels = 2  # Fixed for binary classification
 
     # Image upload with styled container
     st.markdown("""
@@ -266,45 +267,45 @@ def main():
         st.warning("⚠️ Please upload an image to visualize the UNet features.")
         return
 
-    # Rest of your code remains the same...
+    # Display the uploaded image
     image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Image', width=None)
 
-    model = get_model(in_channels, out_channels)
-    x = preprocess_image(image)
+    # Get model and process image
+    with st.spinner('Processing image...'):
+        model = get_model()
+        x = preprocess_image(uploaded_file)
 
-    features = {}
-    def get_features(name):
-        def hook(model, input, output):
-            features[name] = output
-        return hook
+        features = {}
+        def get_features(name):
+            def hook(model, input, output):
+                features[name] = output
+            return hook
 
-    # Register hooks and forward pass remain the same...
-    for idx, down in enumerate(model.downs):
-        down.register_forward_hook(get_features(f'encoder_{idx+1}'))
+        # Register hooks
+        for idx, down in enumerate(model.downs):
+            down.register_forward_hook(get_features(f'encoder_{idx+1}'))
 
-    model.bottleneck.register_forward_hook(get_features('bottleneck'))
+        model.bottleneck.register_forward_hook(get_features('bottleneck'))
 
-    for idx in range(0, len(model.ups), 2):
-        model.ups[idx+1].register_forward_hook(get_features(f'decoder_{len(model.ups)//2 - idx//2}'))
+        for idx in range(0, len(model.ups), 2):
+            model.ups[idx+1].register_forward_hook(get_features(f'decoder_{len(model.ups)//2 - idx//2}'))
 
-    with torch.no_grad():
-        output = model(x)
-        
-    # Store input and output in features dict
-    features['input'] = x
-    features['output'] = output
+        with torch.no_grad():
+            output = model(x)
+            
+        # Store input and output in features dict
+        features['input'] = x
+        features['output'] = output
 
-    
-
-    # Feature maps visualization with enhanced styling
+    # Feature maps visualization
     st.markdown("""
         <div style='background-color: #f5f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;'>
             <h2 style='color: #2c3e50; margin-bottom: 15px;'>Feature Maps Visualization</h2>
         </div>
     """, unsafe_allow_html=True)
 
-    # Rest of the visualization code remains the same...
+    # Rest of visualization code remains the same...
     st.subheader("Input Image")
     fig = plot_feature_maps(x, "Input Channels", cmap='gray')
     st.pyplot(fig)
