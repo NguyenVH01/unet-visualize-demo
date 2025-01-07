@@ -16,12 +16,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Enable multi-threading for better performance
-if not hasattr(st, '_is_configured_for_threading'):
-    st._is_configured_for_threading = True
-    st.experimental_singleton._get_or_create_singleton = lambda *args, **kwargs: None
-    st.cache_data.clear()
-    st.cache_resource.clear()
+# Configure threading and caching
+if 'model' not in st.session_state:
+    st.session_state['model'] = None
+
+@st.cache_resource(show_spinner=False)
+def get_model(in_channels, out_channels):
+    return UNet(in_channels=in_channels, out_channels=out_channels)
 
 # Custom CSS styling
 st.markdown("""
@@ -257,7 +258,7 @@ def main():
     image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Image', width=None)
 
-    model = UNet(in_channels=in_channels, out_channels=out_channels)
+    model = get_model(in_channels, out_channels)
     x = preprocess_image(image)
 
     features = {}
